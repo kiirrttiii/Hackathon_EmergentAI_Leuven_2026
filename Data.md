@@ -1,120 +1,146 @@
-# DATA.md — Data and Information Context
+# DATA.md — D4GC Humanitarian Knowledge Dataset
 
-## 1. Available Context
+## 1. Purpose
 
-The NGO is an international independent medical humanitarian organization with tens of thousands of professionals working across diverse and often resource-constrained environments.
+This file defines how the D4GC hackathon project should discover, organize, index, search, and evaluate the document collection supplied for the challenge.
 
-Its staff generate and consume large volumes of documents, including medical protocols, operational manuals, scientific publications, presentations, and datasets.
+The objective is to identify useful information, improve the structure and discoverability of the existing documents, and build a source-grounded information retrieval system suitable for humanitarian and medical operations.
 
-The organization faces challenges related to document lifecycle management, fragmented information, conflicting versions, unreliable connectivity, confidentiality, and varied levels of digital literacy.
+## 2. Dataset overview
 
-The information supplied for the hackathon describes the organization's context and scale. It does not constitute an actual document repository or a validated dataset for the prototype.
+The supplied archive is named `D4GC data.zip`.
 
-## 2. Expected Document Types
+The initial archive inventory indicates that it contains:
+- An `Original/` folder containing HTML and PDF documents.
+- A `Parsed/` folder containing Markdown versions of documents.
 
-The prototype may eventually work with:
+The initial reported inventory is approximately 1,164 files in total, comprising 342 HTML files, 240 PDFs, and 582 Markdown files. These counts and the reported uncompressed size of approximately 404 MB must be verified against the extracted dataset before being treated as final.
 
-- Medical protocols and clinical guidance
-- Operational and logistical manuals
-- Epidemiological reports and research publications
-- Training and onboarding materials
-- Presentations and internal reports
-- Structured operational datasets
+The Markdown documents are likely intended to make extracted content easier to process. They must not automatically be treated as complete or perfectly accurate representations of their originals.
 
-Actual file formats, data sources, and access permissions must be confirmed with the challenge organizers.
+## 3. Data access and preservation
 
-## 3. Proposed Document Metadata
+- Treat the supplied collection as the primary input dataset for the prototype.
+- Use the complete dataset when it is accessible and authorized for the intended processing.
+- Preserve the original files unchanged.
+- Keep the original and parsed versions linked wherever a reliable match can be established.
+- Record inaccessible, unreadable, corrupt, or unsuccessfully parsed files.
+- Do not silently omit files that fail processing.
+- Do not delete or overwrite duplicates. Identify duplicate candidates and recommend review or deduplication for the search index.
+- Keep the dataset separate from application source code where practical.
+- Do not commit the complete dataset to a public repository unless the organizers explicitly permit that form of redistribution.
+- Do not transmit documents to external AI services unless that processing is permitted by the challenge rules.
 
-Where available and authorized, store:
+## 4. Document catalogue and metadata
 
-- Document identifier
-- Title
-- Document type and topic
-- Source and responsible department
-- Author or document owner
-- Creation and last-modified dates
-- Version identifier
-- Approval status
-- Effective date and review date
-- Language
-- Confidentiality classification
-- Access permissions
-- Extracted text and source-location references
-- Superseded-document relationship, if applicable
+Create a catalogue with one record per identifiable document. Suggested fields include:
 
-Missing metadata must remain explicitly unknown rather than being invented.
+- `document_id`: stable unique identifier.
+- `original_path`: path to the original file, if available.
+- `parsed_path`: path to its parsed Markdown version, if available.
+- `title`: document title.
+- `source`: publisher, issuing organization, or source location, where available.
+- `file_type`: PDF, HTML, or Markdown.
+- `language`: detected language, with confidence where feasible.
+- `publication_date`: publication date, if available.
+- `last_updated_date`: update date, if available.
+- `document_type`: guideline, protocol, research, manual, policy, training material, or other supported type.
+- `topics`: one or more categories from a documented taxonomy.
+- `geographic_scope`: applicable location or region, if available.
+- `approval_status`: approved, draft, superseded, archived, unverified, or unknown, only where supported by evidence.
+- `version`: document version, where available.
+- `content_hash`: hash for identifying exact duplicate files.
+- `duplicate_group_id`: identifier for a potential duplicate group.
+- `processing_status`: pending, processed, partially processed, or failed.
+- `metadata_confidence`: confidence or provenance of inferred metadata.
+- `quality_flags`: missing metadata, possible outdated content, extraction issue, possible conflict, or other review flags.
 
-## 4. Source Reliability and Document Status
+Do not invent missing values. Distinguish extracted metadata from inferred metadata and record uncertainty.
 
-Do not assume that the newest, most frequently accessed, or most relevant-looking document is automatically authoritative.
+## 5. Initial taxonomy
 
-Where the organization supplies the necessary information, distinguish between:
+Evaluate and refine a configurable taxonomy that may include:
 
-- Approved and currently effective documents
-- Drafts awaiting review
-- Superseded documents
-- Archived documents
-- Unverified or externally sourced material
+- Clinical guidance and protocols.
+- Diseases, diagnosis, and treatment.
+- Epidemiology and surveillance.
+- Public health, vaccination, nutrition, and mental health.
+- Medical operations and emergency response.
+- Logistics, supply chains, and equipment.
+- Security and field operations.
+- Organizational policies and procedures.
+- Training and educational material.
+- Research, reports, and evidence reviews.
+- Other or unclassified.
 
-Authority should follow the NGO's approved governance rules, designated document owners, and applicable policies.
+A document may belong to multiple topics. Preserve an unclassified option when evidence is insufficient.
 
-When sources conflict, show the relevant documents, their available metadata, and the disagreement. Do not silently choose a source without a defensible rule.
+## 6. Document quality and lifecycle
 
-## 5. Search and AI Answering
+The system should help users identify:
 
-For AI-assisted retrieval:
+- Exact and near-duplicate documents.
+- Documents with missing titles, dates, sources, or versions.
+- Documents with incomplete or failed text extraction.
+- Potentially outdated material.
+- Conflicting recommendations across sources.
+- Draft, archived, superseded, or unverified documents.
+- Documents whose authority or current status cannot be established.
 
-1. Search only documents the user is authorized to access.
-2. Retrieve relevant passages from those documents.
-3. Generate answers based on the retrieved evidence.
-4. Provide traceable citations to the source document and page or section where possible.
-5. Indicate when the evidence is incomplete, outdated, or contradictory.
-6. Abstain from making unsupported claims.
+A publication date alone does not establish whether a document is authoritative or currently valid. The system must not independently declare clinical guidance approved or safe.
 
-A citation must point to real source content, not merely a document with a similar title.
+Quality flags should explain the reason for review and, where possible, point to the evidence. Human review should be available for uncertain classifications and conflicts.
 
-## 6. Confidentiality and Data Handling
+## 7. Information retrieval requirements
 
-- Use synthetic or anonymized documents for hackathon testing.
-- Do not upload patient-identifiable information or confidential operational information to public repositories.
-- Do not send sensitive information to unapproved AI providers.
-- Apply authorization before retrieving or displaying restricted content.
-- Define retention, deletion, backup, and synchronization policies before production deployment.
+The retrieval system should:
 
-## 7. Offline Data Requirements
+- Index all successfully processed documents in the authorized collection.
+- Support keyword search as a reliable baseline.
+- Support filters based on available metadata.
+- Retrieve relevant passages rather than relying only on whole-document summaries.
+- Show document titles, sources, dates, relevant excerpts, and document status where verified.
+- Provide links or navigation to the original document and relevant parsed content.
+- Cite the source passages used for generated answers.
+- Identify uncertainty and conflicting evidence.
+- Say when sufficient supporting information cannot be found.
+- Avoid generating unsupported medical recommendations.
+- Continue to provide basic search when an optional AI service is unavailable.
 
-Essential documents and their search indexes should be available locally when authorized and technically feasible.
+## 8. Offline and low-resource requirements
 
-Synchronization should preserve version history and detect conflicting updates. Restricted information must not automatically propagate to every device.
+Prioritize local indexing and search where feasible, low resource consumption, clear status indicators, and simple navigation.
 
-The prototype should clearly indicate when local content may be stale or when newer versions cannot be checked because the device is offline.
+Document which features require connectivity. Do not claim that AI question answering, synchronization, or the entire application works offline until tested in the actual deployment environment.
 
-## 8. Test Data
+## 9. Testing and evaluation
 
-Use a small, synthetic collection that includes:
+Evaluate the system using representative documents and, where feasible, the full collection.
 
-- Two versions of the same protocol
-- An approved document and an unapproved draft
-- An outdated document marked as superseded
-- Two documents containing conflicting guidance
-- A document with missing metadata
-- A document containing the answer to a test question
-- A question whose answer is not present in the collection
-- Documents assigned different access permissions
+Include tests for:
+- Coverage of the supplied files.
+- Correct matching of parsed and original documents.
+- Search relevance and retrieval of the correct source.
+- Citation correctness.
+- Duplicate detection.
+- Missing and incorrectly inferred metadata.
+- Conflicting or potentially outdated material.
+- Unsupported questions and insufficient evidence.
+- Failed extraction and unreadable documents.
+- Operation when connectivity or an external AI service is unavailable.
+- Access restrictions and protection of confidential content.
 
-These scenarios will help evaluate search relevance, version awareness, citation accuracy, uncertainty handling, and access control.
+Report actual results, limitations, and known failures rather than claiming untested capabilities.
 
-## 9. Open Questions
+## 10. Open questions
 
-Confirm with the NGO:
+The implementation should establish:
+- The verified file count and extracted directory structure.
+- Whether every parsed Markdown file has a matching original.
+- Whether the collection includes explicit source, date, version, or approval metadata.
+- Which formats and languages are represented.
+- Which retrieval and AI capabilities are feasible in the chosen runtime.
+- Which dataset handling and redistribution rules apply to the challenge.
+- How offline operation can be demonstrated and tested.
 
-- Which repositories and file formats are currently used?
-- Who owns and approves each document type?
-- How are effective versions identified?
-- Which languages must be supported?
-- What confidentiality classifications apply?
-- What local storage and retention policies are required?
-- How large are the document collections?
-- Which devices and offline durations must be supported?
-
-Until these questions are answered, all proposed metadata, search behavior, and data-handling assumptions should be treated as provisional.
+Resolve these questions through inspection and testing, not assumptions.
